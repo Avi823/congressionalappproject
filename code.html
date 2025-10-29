@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <title>Weighted Grade Calculator</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- Google Font: Rubik -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -77,7 +76,7 @@
       transform:translateY(-6px);
       animation:float 3.2s ease-in-out infinite;
       flex-shrink:0;
-      overflow:hidden; /* ensure image is clipped to rounded box */
+      overflow:hidden; 
     }
     .logo img{
       width:100%;
@@ -285,7 +284,7 @@
   </div>
 
   <script>
-    // run after DOM ready to avoid "null" element errors
+    
     window.addEventListener('DOMContentLoaded', () => {
       const data = { classwork: [], minor: [], major: [] };
       const listCw = document.getElementById('listCw');
@@ -328,7 +327,7 @@
           div.innerHTML = `<div><div class="label">#${i+1}</div><div class="small-text">${(p*100).toFixed(2)}%</div></div><div class="value"><button data-i="${i}" data-cat="${category}">Delete</button></div>`;
           listEl.appendChild(div);
         });
-        // attach click handlers that read the button's dataset (avoids closure index bugs)
+        
         listEl.querySelectorAll('button[data-i]').forEach(btn => {
           btn.addEventListener('click', () => {
             const idx = parseInt(btn.dataset.i, 10);
@@ -420,4 +419,5 @@
     });
   </script>
 </body>
+
 </html>
