@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Weighted Grade Calculator</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Google Font: Rubik -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#c8d0e8;
+      --accent:#7c3aed;
+      --accent-2:#a78bfa;
+      --glass: rgba(255,255,255,0.05);
+      --soft: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --success:#10b981;
+      --danger:#ef4444;
+      --page-padding:12px;
+      --container-width:2000px;
+      --base-font:20px;
+      --control-padding:18px 20px;
+      --logo-size:112px;
+      --card-padding:26px;
+      --card-min-height:220px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Rubik', Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#0a0620 0%, #0b0626 40%, #0f0b2b 100%);
+      color:#eef6ff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:var(--page-padding);
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      font-size:var(--base-font);
+      overflow-x:auto;
+    }
+    .container{
+      width:100%;
+      max-width: min(var(--container-width), calc(100vw - 24px));
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:18px;
+      box-shadow: 0 16px 60px rgba(2,6,23,0.75);
+      overflow:hidden;
+      transform:translateY(0);
+      animation:popIn .48s ease both;
+      border: 1px solid rgba(255,255,255,0.04);
+      margin:18px auto;
+    }
+    header.app-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:28px 40px;
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      color:white;
+    }
+    .brand{ display:flex; gap:22px; align-items:center; }
+    .logo{
+      width:var(--logo-size);
+      height:var(--logo-size);
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:36px;
+      background:rgba(255,255,255,0.12);
+      box-shadow:0 12px 40px rgba(124,58,237,0.28);
+      transform:translateY(-6px);
+      animation:float 3.2s ease-in-out infinite;
+      flex-shrink:0;
+      overflow:hidden; /* ensure image is clipped to rounded box */
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .title{ font-size:26px; letter-spacing:0.2px; margin:0; }
+    .subtitle{ font-size:14px; opacity:0.98; color:rgba(255,255,255,0.95); margin-top:6px; }
+    main{ padding:28px 40px 40px 40px; display:block; gap:22px; }
+    h2{ margin:10px 0 16px 0; font-size:20px; color:#fbf6ff }
+    label{ display:block; margin:8px 0 8px 0; color:var(--muted); font-size:15px }
+    input, select, button{
+      background:var(--glass);
+      color:#eef6ff;
+      border:1px solid rgba(255,255,255,0.04);
+      padding:var(--control-padding);
+      border-radius:14px;
+      outline:none;
+      transition:box-shadow .18s ease, transform .12s ease, background .12s ease;
+      font-size:16px;
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+    }
+    input:focus, select:focus{
+      box-shadow: 0 16px 48px rgba(124,58,237,0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      transform:translateY(-2px);
+    }
+    .grid{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:20px; }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008));
+      border-radius:14px;
+      padding:var(--card-padding);
+      border:1px solid rgba(255,255,255,0.02);
+      min-height:var(--card-min-height);
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+    }
+    .card h3{ margin:0 0 12px 0; font-size:18px; color:#fff7ff }
+    .row{ display:flex; gap:14px; align-items:center }
+    .row .small{ flex:0 0 150px }
+    .controls{ display:flex; gap:14px; margin-top:18px }
+    button.primary{
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      border:none;color:white;padding:14px 20px;border-radius:12px;font-weight:700;
+      box-shadow:0 16px 48px rgba(124,58,237,0.18);
+      cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;
+      font-size:16px;
+    }
+    button.ghost{
+      background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);cursor:pointer;border-radius:12px;padding:12px 16px;
+      font-size:15px;
+    }
+    button.primary:hover{ transform:translateY(-4px); box-shadow:0 24px 60px rgba(124,58,237,0.28) }
+    button.ghost:hover{ transform:translateY(-2px) }
+    .list{ margin-top:14px; border-radius:12px; padding:14px; background:linear-gradient(180deg,var(--soft),transparent); min-height:80px; overflow:auto }
+    .item{
+      display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:10px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      margin-bottom:10px; opacity:0; transform:translateY(8px); animation:fadeInUp .36s forwards;
+    }
+    .item .label{ color:#fff; font-weight:800 }
+    .item .value{ color:var(--muted); font-weight:700 }
+    .item button{ background:transparent; border:none; color:var(--danger); cursor:pointer; padding:8px 12px; border-radius:6px }
+    .output{
+      margin-top:20px; padding:22px; border-radius:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.02);
+      display:flex; flex-direction:column; gap:12px; animation:popIn .42s ease both;
+    }
+    .muted{ color:var(--muted) }
+    .small-text{ font-size:14px; color:var(--muted) }
+    footer{ padding:20px 40px; background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--muted) }
+    @keyframes fadeInUp{ from{ opacity:0; transform:translateY(12px) } to{ opacity:1; transform:translateY(0) } }
+    @keyframes popIn{ from{ opacity:0; transform:translateY(12px) scale(.995) } to{ opacity:1; transform:translateY(0) scale(1) } }
+    @keyframes float{ 0%{ transform:translateY(-8px) } 50%{ transform:translateY(4px) } 100%{ transform:translateY(-8px) } }
+    @media(max-width:1200px){
+      :root{ --card-min-height:200px; --logo-size:96px; --base-font:18px; }
+      .grid{ grid-template-columns:1fr 1fr; gap:16px; }
+    }
+    @media(max-width:860px){
+      .grid{ grid-template-columns:1fr }
+      header.app-header{ flex-direction:column; align-items:flex-start; gap:12px }
+      footer{ flex-direction:column; gap:8px; align-items:flex-start }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://image2url.com/images/1761443748857-ffb256a1-1d80-44a7-bb53-852f20bc36f7.png" alt="logo" />
+        </div>
+        <div>
+          <div class="title">Avighna Sharma's Grade Calculator</div>
+          <div class="subtitle">Weighted averages · per-category input · quick planning</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+        <label style="margin:0;color:var(--muted);font-size:15px">Class</label>
+        <input id="className" placeholder="Class name (e.g., Chemistry)" />
+      </div>
+
+      <h2>Category weights (must sum to 100%)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Classwork / Homework</h3>
+          <label>Weight (%)</label>
+          <input id="w_classwork" type="number" min="0" max="100" value="30" />
+        </div>
+        <div class="card">
+          <h3>Minor grades (quizzes)</h3>
+          <label>Weight (%)</label>
+          <input id="w_minor" type="number" min="0" max="100" value="30" />
+        </div>
+        <div class="card">
+          <h3>Major grades (tests/projects)</h3>
+          <label>Weight (%)</label>
+          <input id="w_major" type="number" min="0" max="100" value="40" />
+        </div>
+      </div>
+
+      <h2>Enter grades</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Classwork / Homework</h3>
+          <div class="row">
+            <input id="cw_score" placeholder="Score earned" type="number" min="0" />
+            <input id="cw_total" placeholder="Total points" type="number" min="1" />
+          </div>
+          <div class="controls">
+            <button id="addCw" class="primary">Add</button>
+            <button id="clearCw" class="ghost">Clear</button>
+          </div>
+          <div id="listCw" class="list"></div>
+        </div>
+
+        <div class="card">
+          <h3>Minor grades (quizzes)</h3>
+          <div class="row">
+            <input id="mn_score" placeholder="Score earned" type="number" min="0" />
+            <input id="mn_total" placeholder="Total points" type="number" min="1" />
+          </div>
+          <div class="controls">
+            <button id="addMn" class="primary">Add</button>
+            <button id="clearMn" class="ghost">Clear</button>
+          </div>
+          <div id="listMn" class="list"></div>
+        </div>
+
+        <div class="card">
+          <h3>Major grades (tests/projects)</h3>
+          <div class="row">
+            <input id="mj_score" placeholder="Score earned" type="number" min="0" />
+            <input id="mj_total" placeholder="Total points" type="number" min="1" />
+          </div>
+          <div class="controls">
+            <button id="addMj" class="primary">Add</button>
+            <button id="clearMj" class="ghost">Clear</button>
+          </div>
+          <div id="listMj" class="list"></div>
+        </div>
+      </div>
+
+      <h2>Next assignment & goal</h2>
+      <div class="card" style="display:flex;flex-direction:column;gap:16px">
+        <div class="row">
+          <input id="nextName" placeholder="Next assignment name (e.g., Quiz 5)" />
+          <select id="nextCategory" class="small">
+            <option value="classwork">Classwork / Homework</option>
+            <option value="minor">Minor grades (quiz)</option>
+            <option value="major">Major grades (test/project)</option>
+          </select>
+        </div>
+        <div class="row">
+          <input id="goal" type="number" min="0" max="100" value="85" />
+          <input id="nextWeight" placeholder="(optional) next assignment % of category" />
+          <div style="flex:1" class="small-text">Enter goal average (%) and optional assignment weight within its category.</div>
+        </div>
+        <div class="controls" style="margin-top:6px">
+          <button id="calc" class="primary">Calculate</button>
+          <button id="clearAll" class="ghost">Reset Everything</button>
+        </div>
+      </div>
+
+      <div id="output" class="output" style="display:none">
+        <div style="font-size:18px"><strong>Current weighted average:</strong> <span id="currentAvg">-</span>%</div>
+        <div style="font-size:18px"><strong>Required on next assignment to reach goal:</strong> <span id="requiredNext">-</span></div>
+        <div style="font-size:18px"><strong>Next assignment:</strong> <span id="outNext">-</span> (<span id="outClass">-</span>)</div>
+        <div id="note" class="muted"></div>
+      </div>
+    </main>
+
+    <footer>
+      <div>Made for quick planning · No external calls</div>
+      <div class="muted">Tip: adjust weights to match your syllabus</div>
+    </footer>
+  </div>
+
+  <script>
+    // run after DOM ready to avoid "null" element errors
+    window.addEventListener('DOMContentLoaded', () => {
+      const data = { classwork: [], minor: [], major: [] };
+      const listCw = document.getElementById('listCw');
+      const listMn = document.getElementById('listMn');
+      const listMj = document.getElementById('listMj');
+      const classNameEl = document.getElementById('className');
+
+      document.getElementById('addCw').addEventListener('click', () => addGrade('classwork','cw_score','cw_total',listCw));
+      document.getElementById('addMn').addEventListener('click', () => addGrade('minor','mn_score','mn_total',listMn));
+      document.getElementById('addMj').addEventListener('click', () => addGrade('major','mj_score','mj_total',listMj));
+      document.getElementById('clearCw').addEventListener('click', () => clearList('classwork',listCw));
+      document.getElementById('clearMn').addEventListener('click', () => clearList('minor',listMn));
+      document.getElementById('clearMj').addEventListener('click', () => clearList('major',listMj));
+      document.getElementById('clearAll').addEventListener('click', resetAll);
+      document.getElementById('calc').addEventListener('click', calculate);
+
+      function addGrade(category, scoreId, totalId, listEl){
+        const s = parseFloat(document.getElementById(scoreId).value);
+        const t = parseFloat(document.getElementById(totalId).value);
+        if(!isFinite(s) || !isFinite(t) || t <= 0){ alert('Enter valid score and total.'); return; }
+        const pct = s / t;
+        data[category].push(pct);
+        renderList(category, listEl);
+        document.getElementById(scoreId).value = '';
+        document.getElementById(totalId).value = '';
+      }
+
+      function clearList(category, listEl){
+        if(!confirm('Clear all grades for this category?')) return;
+        data[category] = [];
+        renderList(category, listEl);
+      }
+
+      function renderList(category, listEl){
+        listEl.innerHTML = '';
+        if(!Array.isArray(data[category]) || data[category].length === 0){ listEl.textContent = '(no grades)'; return; }
+        data[category].forEach((p, i) => {
+          const div = document.createElement('div');
+          div.className = 'item';
+          div.innerHTML = `<div><div class="label">#${i+1}</div><div class="small-text">${(p*100).toFixed(2)}%</div></div><div class="value"><button data-i="${i}" data-cat="${category}">Delete</button></div>`;
+          listEl.appendChild(div);
+        });
+        // attach click handlers that read the button's dataset (avoids closure index bugs)
+        listEl.querySelectorAll('button[data-i]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.i, 10);
+            const cat = btn.dataset.cat;
+            if (!Number.isInteger(idx)) return;
+            data[cat].splice(idx, 1);
+            renderList(cat, listEl);
+          });
+        });
+      }
+
+      function calculate(){
+        const wClass = clamp(parseFloat(document.getElementById('w_classwork').value), 0, 100);
+        const wMinor = clamp(parseFloat(document.getElementById('w_minor').value), 0, 100);
+        const wMajor = clamp(parseFloat(document.getElementById('w_major').value), 0, 100);
+        const totalW = wClass + wMinor + wMajor;
+        if(totalW !== 100){ if(!confirm(`Weights sum to ${totalW}%. Continue anyway?`)) return; }
+        const wf = { classwork: wClass / 100, minor: wMinor / 100, major: wMajor / 100 };
+
+        const avgCw = data.classwork.length ? average(data.classwork) : 0;
+        const avgMn = data.minor.length ? average(data.minor) : 0;
+        const avgMj = data.major.length ? average(data.major) : 0;
+
+        const currentOverall = avgCw * wf.classwork + avgMn * wf.minor + avgMj * wf.major;
+
+        const nextName = (document.getElementById('nextName').value || '').trim() || '(next)';
+        const outClassName = (classNameEl && classNameEl.value || '').trim() || '(class)';
+        const nextCategory = document.getElementById('nextCategory').value;
+        const goal = clamp(parseFloat(document.getElementById('goal').value), 0, 100) / 100;
+
+        const sums = { classwork: sum(data.classwork), minor: sum(data.minor), major: sum(data.major) };
+        const counts = { classwork: data.classwork.length, minor: data.minor.length, major: data.major.length };
+
+        const otherContribution = (() => {
+          let c = 0;
+          if(nextCategory !== 'classwork') c += avgCw * wf.classwork;
+          if(nextCategory !== 'minor') c += avgMn * wf.minor;
+          if(nextCategory !== 'major') c += avgMj * wf.major;
+          return c;
+        })();
+
+        const wChosen = wf[nextCategory];
+        let requiredPct;
+        if(wChosen === 0) requiredPct = Infinity;
+        else {
+          const neededContributionFromChosen = goal - otherContribution;
+          const newAvgNeeded = neededContributionFromChosen / wChosen;
+          requiredPct = newAvgNeeded * (counts[nextCategory] + 1) - sums[nextCategory];
+        }
+
+        const currentDisplay = (currentOverall * 100).toFixed(2);
+        let requiredDisplay; let note = '';
+        if(!isFinite(requiredPct)){ requiredDisplay = 'Not possible — chosen category weight is 0%'; note = 'Adjust category weights to allow impact from this assignment.'; }
+        else {
+          const requiredPercent = requiredPct * 100;
+          if(requiredPercent > 100){ requiredDisplay = requiredPercent.toFixed(2) + '% (more than 100% — not feasible)'; note = 'Consider improving multiple future grades or extra credit.'; }
+          else if(requiredPercent < 0){ requiredDisplay = requiredPercent.toFixed(2) + '% (already enough; any score will keep goal)'; note = 'You already have enough to reach the goal in this scenario.'; }
+          else { requiredDisplay = requiredPercent.toFixed(2) + '%'; }
+        }
+
+        document.getElementById('currentAvg').textContent = currentDisplay;
+        document.getElementById('requiredNext').textContent = requiredDisplay;
+        document.getElementById('outNext').textContent = nextName;
+        document.getElementById('outClass').textContent = outClassName;
+        document.getElementById('note').textContent = note;
+        document.getElementById('output').style.display = '';
+      }
+
+      function resetAll(){
+        if(!confirm('Reset all data and weights?')) return;
+        data.classwork = []; data.minor = []; data.major = [];
+        renderList('classwork', listCw); renderList('minor', listMn); renderList('major', listMj);
+        document.getElementById('w_classwork').value = 30;
+        document.getElementById('w_minor').value = 30;
+        document.getElementById('w_major').value = 40;
+        document.getElementById('nextName').value = '';
+        if(classNameEl) classNameEl.value = '';
+        document.getElementById('goal').value = 85;
+        document.getElementById('output').style.display = 'none';
+      }
+
+      function average(arr){ return Array.isArray(arr) && arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+      function sum(arr){ return Array.isArray(arr) && arr.length ? arr.reduce((a,b)=>a+b,0) : 0; }
+      function clamp(v,min,max){ v = Number(v); if(isNaN(v)) return min; return Math.min(max, Math.max(min, v)); }
+
+      renderList('classwork', listCw);
+      renderList('minor', listMn);
+      renderList('major', listMj);
+    });
+  </script>
+</body>
+</html>
